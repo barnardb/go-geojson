@@ -46,7 +46,7 @@ func (p Position) MarshalJSON() ([]byte, error) {
 // Geometry represents a [GeoJSON Geometry](https://www.rfc-editor.org/rfc/rfc7946#section-3.1).
 type Geometry interface {
 	Object
-	_isGeometry() // marker method
+	ToFeature(properties map[string]any) Feature
 	// Coordinates() []any
 }
 
@@ -117,7 +117,7 @@ func (g *Point) Type() string {
 }
 
 // MarhsalJSON implements json.Marshaler.
-func (g *Point) _isGeometry() {}
+func (g *Point) ToFeature(properties map[string]any) Feature { return Feature{g, properties} }
 
 // MarshalJSON implements json.Marshaler.
 func (g *Point) MarshalJSON() ([]byte, error) {
@@ -136,7 +136,7 @@ func NewMultiPoint(pn ...Position) *MultiPoint {
 func (g *MultiPoint) Type() string {
 	return "MultiPoint"
 }
-func (g *MultiPoint) _isGeometry() {}
+func (g *MultiPoint) ToFeature(properties map[string]any) Feature { return Feature{g, properties} }
 
 // MarshalJSON implements json.Marshaler.
 func (g *MultiPoint) MarshalJSON() ([]byte, error) {
@@ -155,7 +155,7 @@ func NewLineString(c0, c1 Position, cn ...Position) *LineString {
 func (g *LineString) Type() string {
 	return "LineString"
 }
-func (g *LineString) _isGeometry() {}
+func (g *LineString) ToFeature(properties map[string]any) Feature { return Feature{g, properties} }
 
 // MarshalJSON implements json.Marshaler.
 func (g *LineString) MarshalJSON() ([]byte, error) {
@@ -174,7 +174,7 @@ func NewMultiLineString(coordinates ...LineStringCoordinates) *MultiLineString {
 func (g *MultiLineString) Type() string {
 	return "MultiLineString"
 }
-func (g *MultiLineString) _isGeometry() {}
+func (g *MultiLineString) ToFeature(properties map[string]any) Feature { return Feature{g, properties} }
 
 // MarshalJSON implements json.Marshaler.
 func (g *MultiLineString) MarshalJSON() ([]byte, error) {
@@ -193,7 +193,7 @@ func NewPolygon(outerBoundary LinearRing, holes ...LinearRing) *Polygon {
 func (g *Polygon) Type() string {
 	return "Polygon"
 }
-func (g *Polygon) _isGeometry() {}
+func (g *Polygon) ToFeature(properties map[string]any) Feature { return Feature{g, properties} }
 
 // MarshalJSON implements json.Marshaler.
 func (g *Polygon) MarshalJSON() ([]byte, error) {
@@ -212,7 +212,7 @@ func NewMultiPolygon(coordinates ...PolygonCoordinates) *MultiPolygon {
 func (g *MultiPolygon) Type() string {
 	return "MultiPolygon"
 }
-func (g *MultiPolygon) _isGeometry() {}
+func (g *MultiPolygon) ToFeature(properties map[string]any) Feature { return Feature{g, properties} }
 
 // MarshalJSON implements json.Marshaler.
 func (g *MultiPolygon) MarshalJSON() ([]byte, error) {
@@ -231,7 +231,9 @@ func NewGeometryCollection(geometries ...Geometry) *GeometryCollection {
 func (g *GeometryCollection) Type() string {
 	return "GeometryCollection"
 }
-func (g *GeometryCollection) _isGeometry() {}
+func (g *GeometryCollection) ToFeature(properties map[string]any) Feature {
+	return Feature{g, properties}
+}
 
 // Feature represents a [GeoJSON Feature](https://www.rfc-editor.org/rfc/rfc7946#section-3.2).
 type Feature struct {
